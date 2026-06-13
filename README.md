@@ -82,7 +82,6 @@ You can find the ModDB release post [here](https://www.moddb.com/mods/bot-warfar
 | bots_main_menu                   | Enable the in-game menu for hosts.                                                          | 1             |
 | bots_main_debug                  | Enable the in-game waypoint editor at start of the game, or enable bot event prints. <ul><li>`0` - disable</li><li>`1` - for just debug events</li><li>`2` - for every event</li><ul> | 0 |
 | bots_main_kickBotsAtEnd          | Kick the bots at the end of a match.                                                        | 0             |
-| bots_main_chat                   | The rate bots will chat at, set to 0 to disable.                                            | 1.0           |
 | bots_manage_add                  | Amount of bots to add to the game, once bots are added, resets back to `0`.                 | 0             |
 | bots_manage_fill                 | Amount of players/bots (look at `bots_manage_fill_mode`) to maintain in the match.          | 0             |
 | bots_manage_fill_mode            | `bots_manage_fill` players/bots counting method.<ul><li>`0` - counts both players and bots.</li><li>`1` - only counts bots.</li><li>`2` - exactly `0` but auto adjusts `bots_manage_fill` to map.</li><li>`3` - exactly `1` but auto adjusts `bots_manage_fill` to map.</li><li>`4` - bots are used for balancing teams.</li><li>`5` - exactly `4` but auto adjusts `bots_manage_fill` to map.</li></ul> | 0 |
