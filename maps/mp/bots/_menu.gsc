@@ -168,6 +168,8 @@ watchDisconnect()
 		{
 			self.menuversionhud destroyFixed();
 		}
+
+		self MenuHudClose();
 	}
 }
 
@@ -254,7 +256,7 @@ LeftMenu()
 	self endon ( "disconnect" );
 	self endon ( "bots_kill_menu" );
 	
-	self notifyonplayercommand( "bots_left", "+moveleft" );
+	self notifyonplayercommand( "bots_left", "+speed_throw" );
 	
 	for ( ;; )
 	{
@@ -280,7 +282,7 @@ RightMenu()
 	self endon ( "disconnect" );
 	self endon ( "bots_kill_menu" );
 	
-	self notifyonplayercommand( "bots_right", "+moveright" );
+	self notifyonplayercommand( "bots_right", "+attack" );
 	
 	for ( ;; )
 	{
@@ -306,7 +308,7 @@ UpMenu()
 	self endon ( "disconnect" );
 	self endon ( "bots_kill_menu" );
 	
-	self notifyonplayercommand( "bots_up", "+forward" );
+	self notifyonplayercommand( "bots_up", "+speed_throw" );
 	
 	for ( ;; )
 	{
@@ -332,7 +334,7 @@ DownMenu()
 	self endon ( "disconnect" );
 	self endon ( "bots_kill_menu" );
 	
-	self notifyonplayercommand( "bots_down", "+back" );
+	self notifyonplayercommand( "bots_down", "+attack" );
 	
 	for ( ;; )
 	{
@@ -398,7 +400,7 @@ OpenSub( menu, menu2 )
 		for ( i = 0 ; i < self.option[ "Name" ][ self.submenu ].size ; i++ )
 		{
 			self.menutext[ i ] = self createfontstring( "default", 1.6 );
-			self.menutext[ i ] setpoint( "CENTER", "CENTER", -300 + ( i * 100 ), -226 );
+			self.menutext[ i ] setpoint( "CENTER", "CENTER", -300 + ( i * 260 ), -226 );
 			self.menutext[ i ] settext( self.option[ "Name" ][ self.submenu ][ i ] );
 			
 			if ( logOldi )
@@ -410,7 +412,7 @@ OpenSub( menu, menu2 )
 			{
 				logOldi = false;
 				x = i - self.oldi;
-				self.menutext[ i ] setpoint( "CENTER", "CENTER", ( ( ( -300 ) - ( i * 100 ) ) + ( i * 100 ) ) + ( x * 100 ), -196 );
+				self.menutext[ i ] setpoint( "CENTER", "CENTER", -300 + ( x * 260 ), -196 );
 			}
 			
 			self.menutext[ i ].alpha = 1;
@@ -430,12 +432,17 @@ OpenSub( menu, menu2 )
 		
 		self CursMove( "X" );
 		
-		self.menuversionhud = initHudElem( "Bot Warfare " + level.bw_version, 0, 0 );
+		controlstext = "[{+gostand}] select - [{+speed_throw}]/[{+attack}] move - [{+actionslot 2}] back";
+		brandingtext = "      Bot Warfare " + level.bw_version;
+		self.menuversionhud = initHudElem( controlstext + "\n" + brandingtext, 0, 15 ); 
 		
 		self.menuopen = true;
+		self MenuHudOpen();
 	}
 	else
 	{
+		menuY = -160;
+
 		if ( isdefined( self.menutexty ) )
 		{
 			for ( i = 0 ; i < self.menutexty.size ; i++ )
@@ -450,7 +457,7 @@ OpenSub( menu, menu2 )
 		for ( i = 0 ; i < self.option[ "Name" ][ self.submenu ].size ; i++ )
 		{
 			self.menutexty[ i ] = self createfontstring( "default", 1.6 );
-			self.menutexty[ i ] setpoint( "CENTER", "CENTER", self.menutext[ self.curs[ "Main" ][ "X" ] ].x, -160 + ( i * 20 ) );
+			self.menutexty[ i ] setpoint( "CENTER", "CENTER", self.menutext[ self.curs[ "Main" ][ "X" ] ].x, menuY + ( i * 20 ) );
 			self.menutexty[ i ] settext( self.option[ "Name" ][ self.submenu ][ i ] );
 			self.menutexty[ i ].alpha = 1;
 			self.menutexty[ i ].sort = 999;
@@ -535,7 +542,7 @@ ShowOptionOn( variable )
 		}
 		
 		self setclientdvar( "r_blur", "5" );
-		self setclientdvar( "sc_blur", "15" );
+		self setclientdvar( "sc_blur", "4" );
 		self addOptions();
 		
 		if ( self.submenu == "Main" )
@@ -671,6 +678,17 @@ ExitMenu()
 	
 	self setclientdvar( "r_blur", "0" );
 	self setclientdvar( "sc_blur", "2" );
+	self MenuHudClose();
+}
+
+MenuHudOpen()
+{
+	self setclientdvar( "compassSize", "0.001" );
+}
+
+MenuHudClose()
+{
+	self setclientdvar( "compassSize", "1" );
 }
 
 initHudElem( txt, xl, yl )
@@ -684,7 +702,7 @@ initHudElem( txt, xl, yl )
 	hud.x = xl;
 	hud.y = yl;
 	hud.foreground = true;
-	hud.fontscale = 1;
+	hud.fontscale = 1.4;
 	hud.font = "objective";
 	hud.alpha = 1;
 	hud.glow = 0;
