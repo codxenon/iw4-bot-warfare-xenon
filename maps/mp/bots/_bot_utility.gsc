@@ -1313,6 +1313,50 @@ getWaypointLinesFromFile( filename )
 }
 
 /*
+	Returns a bot's name to be used. Reads from botnames.txt
+*/
+getABotName()
+{
+	if ( !isdefined( level.bot_names ) )
+	{
+		level.bot_names = [];
+		
+		if ( getdvar( "temp_dvar_bot_name_cursor" ) == "" )
+		{
+			setdvar( "temp_dvar_bot_name_cursor", 0 );
+		}
+		
+		filename = "botnames.txt";
+		
+		if ( BotBuiltinFileExists( filename ) )
+		{
+			openResult = BotBuiltinOpenFile( filename, "read" );
+			
+			if ( openResult > 0 )
+			{
+				for ( line = BotBuiltinReadStream(); isdefined( line ); line = BotBuiltinReadStream() )
+				{
+					level.bot_names[ level.bot_names.size ] = line;
+				}
+				
+				BotBuiltinCloseFile();
+			}
+		}
+	}
+	
+	if ( !level.bot_names.size )
+	{
+		return undefined;
+	}
+	
+	cur = getdvarint( "temp_dvar_bot_name_cursor" );
+	name = level.bot_names[ cur % level.bot_names.size ];
+	setdvar( "temp_dvar_bot_name_cursor", cur + 1 );
+	
+	return name;
+}
+
+/*
 	Loads waypoints from file
 */
 readWpsFromFile( mapname )
