@@ -88,6 +88,45 @@ BotBuiltinFileExists( file )
 }
 
 /*
+	Opens a file stream for reading.
+*/
+BotBuiltinOpenFile( file, mode )
+{
+	if ( isdefined( level.bot_builtins ) && isdefined( level.bot_builtins[ "openfile" ] ) )
+	{
+		return [[ level.bot_builtins[ "openfile" ] ]]( file, mode );
+	}
+	
+	return -1;
+}
+
+/*
+	Reads the next line from the currently open file stream.
+*/
+BotBuiltinReadStream()
+{
+	if ( isdefined( level.bot_builtins ) && isdefined( level.bot_builtins[ "readstream" ] ) )
+	{
+		return [[ level.bot_builtins[ "readstream" ] ]]();
+	}
+	
+	return undefined;
+}
+
+/*
+	Closes the currently open file stream.
+*/
+BotBuiltinCloseFile()
+{
+	if ( isdefined( level.bot_builtins ) && isdefined( level.bot_builtins[ "closefile" ] ) )
+	{
+		return [[ level.bot_builtins[ "closefile" ] ]]();
+	}
+	
+	return -1;
+}
+
+/*
 	Bot action, does a bot action
 	<client> botaction(<action string (+ or - then action like frag or smoke)>)
 */
@@ -1285,27 +1324,39 @@ readWpsFromFile( mapname )
 	{
 		return waypoints;
 	}
+
+	openResult = BotBuiltinOpenFile( filename, "read" );
 	
-	res = getWaypointLinesFromFile( filename );
-	
-	if ( !res.lines.size )
+	if ( openResult <= 0 )
 	{
 		return waypoints;
 	}
 	
-	BotBuiltinPrintConsole( "Attempting to read waypoints from " + filename );
+	firstLine = BotBuiltinReadStream();
 	
-	waypointCount = int( res.lines[ 0 ] );
+	if ( !isdefined( firstLine ) )
+	{
+		BotBuiltinCloseFile();
+		return waypoints;
+	}
+	
+	waypointCount = int( firstLine );
 	
 	for ( i = 1; i <= waypointCount; i++ )
 	{
-		tokens = strtok( res.lines[ i ], "," );
+		line = BotBuiltinReadStream();
 		
+		if ( !isdefined( line ) )
+		{
+			break;
+		}
+		
+		tokens = strtok( line, "," );
 		waypoint = parseTokensIntoWaypoint( tokens );
-		
 		waypoints[ i - 1 ] = waypoint;
 	}
 	
+	BotBuiltinCloseFile();
 	return waypoints;
 }
 

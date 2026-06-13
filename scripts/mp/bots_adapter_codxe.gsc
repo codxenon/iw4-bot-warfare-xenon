@@ -4,6 +4,9 @@ init()
 	level.bot_builtins[ "filewrite" ] = ::do_filewrite;
 	level.bot_builtins[ "fileread" ] = ::do_fileread;
 	level.bot_builtins[ "fileexists" ] = ::do_fileexists;
+	level.bot_builtins[ "openfile" ] = ::do_openfile;
+	level.bot_builtins[ "readstream" ] = ::do_readstream;
+	level.bot_builtins[ "closefile" ] = ::do_closefile;
 	level.bot_builtins[ "botaction" ] = ::do_botaction;
 	level.bot_builtins[ "botstop" ] = ::do_botstop;
 	level.bot_builtins[ "botmovement" ] = ::do_botmovement;
@@ -33,6 +36,22 @@ do_fileexists( file )
 {
 	file = "scriptdata/" + file;
 	return fileexists( file );
+}
+
+do_openfile( file, mode )
+{
+	file = "scriptdata/" + file;
+	return openfile( file, mode );
+}
+
+do_readstream()
+{
+	return readstream();
+}
+
+do_closefile()
+{
+	return closefile();
 }
 
 do_botaction( action )
