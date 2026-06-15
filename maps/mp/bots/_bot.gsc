@@ -219,6 +219,12 @@ init()
 	{
 		setdvar( "bots_play_aim", true );
 	}
+
+	level.bots_target_update_interval = 0.2;
+	level.bots_target_update_stagger = 0.05;
+	level.bots_walk_update_stagger = 0.025;
+	bot_perf_init();
+	// thread bot_perf_printer();
 	
 	if ( !isdefined( game[ "botWarfare" ] ) )
 	{

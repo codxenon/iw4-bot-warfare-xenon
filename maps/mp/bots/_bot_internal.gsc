@@ -1318,6 +1318,7 @@ targetObjUpdateNoTrace( obj )
 */
 checkTraceForBone( myEye, bone )
 {
+	bot_perf_count( "target_bone_check" );
 	boneLoc = self gettagorigin( bone );
 	
 	if ( !isdefined( boneLoc ) )
@@ -1325,8 +1326,10 @@ checkTraceForBone( myEye, bone )
 		return false;
 	}
 	
+	bot_perf_count( "target_trace" );
 	trace = bullettrace( myEye, boneLoc, false, undefined );
 	
+	bot_perf_count( "target_trace" );
 	return ( sighttracepassed( myEye, boneLoc, false, undefined ) && ( trace[ "fraction" ] >= 1.0 || trace[ "surfacetype" ] == "glass" ) );
 }
 
@@ -1400,6 +1403,7 @@ target_loop()
 				entOrigin += self.bot.script_target_offset;
 			}
 			
+			bot_perf_count( "target_trace" );
 			if ( ignoreSmoke || ( SmokeTrace( myEye, entOrigin, level.smokeradius ) ) && bullettracepassed( myEye, entOrigin, false, ent ) )
 			{
 				if ( !isObjDef )
@@ -1431,6 +1435,7 @@ target_loop()
 		else
 		{
 			player = level.players[ i ];
+			bot_perf_count( "target_candidates" );
 			
 			if ( player == self )
 			{
@@ -1463,21 +1468,41 @@ target_loop()
 			
 			if ( usingRemote )
 			{
+				bot_perf_count( "target_trace" );
 				canTargetPlayer = ( bullettracepassed( myEye, player gettagorigin( "j_head" ), false, vehEnt )
 						&& !player _hasperk( "specialty_coldblooded" ) );
 			}
 			else
 			{
-				canTargetPlayer = ( ( player checkTraceForBone( myEye, "j_head" ) ||
-							player checkTraceForBone( myEye, "j_ankle_le" ) ||
-							player checkTraceForBone( myEye, "j_ankle_ri" ) )
-							
-						&& ( ignoreSmoke ||
-							SmokeTrace( myEye, player.origin, level.smokeradius ) ||
-							daDist < level.bots_maxknifedistance * 4 )
-							
-						&& ( getConeDot( player.origin, self.origin, myAngles ) >= myFov ||
-							( isObjDef && obj.trace_time ) ) );
+				withinTargetFov = ( getConeDot( player.origin, self.origin, myAngles ) >= myFov ||
+							( isObjDef && obj.trace_time ) );
+				clearSmokeTrace = false;
+				
+				if ( !withinTargetFov )
+				{
+					bot_perf_count( "target_fov_reject" );
+				}
+				else
+				{
+					clearSmokeTrace = ( ignoreSmoke ||
+								SmokeTrace( myEye, player.origin, level.smokeradius ) ||
+								daDist < level.bots_maxknifedistance * 4 );
+					
+					if ( !clearSmokeTrace )
+					{
+						bot_perf_count( "target_smoke_reject" );
+					}
+				}
+				
+				if ( withinTargetFov && clearSmokeTrace )
+				{
+					bot_perf_count( "target_native_cansee" );
+					canTargetPlayer = self BotBuiltinCanSeePlayer( player, myEye,
+								player gettagorigin( "j_head" ),
+								player gettagorigin( "j_ankle_le" ),
+								player gettagorigin( "j_ankle_ri" ),
+								true );
+				}
 			}
 			
 			if ( isdefined( self.bot.target_this_frame ) && self.bot.target_this_frame == player )
@@ -1589,10 +1614,13 @@ target()
 {
 	self endon( "disconnect" );
 	self endon( "spawned_player" );
+
+	wait ( ( self getentitynumber() % 4 ) * level.bots_target_update_stagger );
 	
 	for ( ;; )
 	{
-		wait 0.05;
+		wait level.bots_target_update_interval;
+		bot_perf_count( "target_tick" );
 		
 		if ( !isalive( self ) )
 		{
@@ -1604,7 +1632,9 @@ target()
 			continue;
 		}
 		
+		perf_start = gettime();
 		self target_loop();
+		bot_perf_end( "target_loop", perf_start );
 	}
 }
 
@@ -2456,10 +2486,13 @@ walk()
 {
 	self endon( "disconnect" );
 	self endon( "death" );
+
+	wait ( ( self getentitynumber() % 4 ) * level.bots_walk_update_stagger );
 	
 	for ( ;; )
 	{
 		wait 0.05;
+		bot_perf_count( "walk_tick" );
 		
 		self botSetMoveTo( self.origin );
 		
@@ -2486,6 +2519,7 @@ walk()
 			continue;
 		}
 		
+		bot_perf_count( "walk_loop" );
 		self walk_loop();
 	}
 }
@@ -2565,7 +2599,9 @@ initAStar( goal )
 		team = self.team;
 	}
 	
+	perf_start = gettime();
 	self.bot.astar = AStarSearch( self.origin, goal, team, self.bot.greedy_path );
+	bot_perf_end( "astar", perf_start );
 	
 	if ( isdefined( team ) )
 	{

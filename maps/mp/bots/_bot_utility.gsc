@@ -50,6 +50,100 @@ BotBuiltinPrintConsole( s )
 	}
 }
 
+bot_perf_init()
+{
+	level.bot_perf_names = [];
+	level.bot_perf_names[ level.bot_perf_names.size ] = "target_loop";
+	level.bot_perf_names[ level.bot_perf_names.size ] = "walk_loop";
+	level.bot_perf_names[ level.bot_perf_names.size ] = "astar";
+	level.bot_perf_names[ level.bot_perf_names.size ] = "nearest_wp";
+	level.bot_perf_names[ level.bot_perf_names.size ] = "nearest_wp_sight";
+	level.bot_perf_names[ level.bot_perf_names.size ] = "wp_los_trace";
+	level.bot_perf_names[ level.bot_perf_names.size ] = "astar_los_trace";
+	level.bot_perf_names[ level.bot_perf_names.size ] = "target_candidates";
+	level.bot_perf_names[ level.bot_perf_names.size ] = "target_trace";
+	level.bot_perf_names[ level.bot_perf_names.size ] = "target_bone_check";
+	level.bot_perf_names[ level.bot_perf_names.size ] = "target_native_cansee";
+	level.bot_perf_names[ level.bot_perf_names.size ] = "target_fov_reject";
+	level.bot_perf_names[ level.bot_perf_names.size ] = "target_smoke_reject";
+	level.bot_perf_names[ level.bot_perf_names.size ] = "target_tick";
+	level.bot_perf_names[ level.bot_perf_names.size ] = "walk_tick";
+	
+	level.bot_perf_counts = [];
+	level.bot_perf_times = [];
+	level.bot_perf_window = gettime();
+	
+	bot_perf_reset();
+}
+
+bot_perf_reset()
+{
+	for ( i = 0; i < level.bot_perf_names.size; i++ )
+	{
+		name = level.bot_perf_names[ i ];
+		level.bot_perf_counts[ name ] = 0;
+		level.bot_perf_times[ name ] = 0;
+	}
+}
+
+bot_perf_count( name )
+{
+	if ( !isdefined( level.bot_perf_counts ) )
+	{
+		return;
+	}
+	
+	if ( !isdefined( level.bot_perf_counts[ name ] ) )
+	{
+		level.bot_perf_counts[ name ] = 0;
+		level.bot_perf_times[ name ] = 0;
+	}
+	
+	level.bot_perf_counts[ name ]++;
+}
+
+bot_perf_end( name, start_time )
+{
+	if ( !isdefined( level.bot_perf_counts ) )
+	{
+		return;
+	}
+	
+	if ( !isdefined( level.bot_perf_counts[ name ] ) )
+	{
+		level.bot_perf_counts[ name ] = 0;
+		level.bot_perf_times[ name ] = 0;
+	}
+	
+	level.bot_perf_counts[ name ]++;
+	level.bot_perf_times[ name ] += gettime() - start_time;
+}
+
+bot_perf_printer()
+{
+	for ( ;; )
+	{
+		wait 5;
+		
+		if ( !isdefined( level.bot_perf_counts ) )
+		{
+			continue;
+		}
+		
+		window = gettime() - level.bot_perf_window;
+		BotBuiltinPrintConsole( "[codxe][IW4 TU6][GSCPerf] window_ms=" + window );
+		
+		for ( i = 0; i < level.bot_perf_names.size; i++ )
+		{
+			name = level.bot_perf_names[ i ];
+			BotBuiltinPrintConsole( "[codxe][IW4 TU6][GSCPerf] " + name + " count=" + level.bot_perf_counts[ name ] + " total_ms=" + level.bot_perf_times[ name ] );
+		}
+		
+		bot_perf_reset();
+		level.bot_perf_window = gettime();
+	}
+}
+
 /*
 	Writes to the file, mode can be "append" or "write"
 */
@@ -193,6 +287,19 @@ BotBuiltinBotAngles( angles )
 	{
 		self [[ level.bot_builtins[ "botangles" ] ]]( angles );
 	}
+}
+
+/*
+	Returns true if the bot can see a candidate player from the supplied eye/tag positions.
+*/
+BotBuiltinCanSeePlayer( player, myEye, head, ankleLe, ankleRi, useAnkles )
+{
+	if ( isdefined( level.bot_builtins ) && isdefined( level.bot_builtins[ "botcanseeplayer" ] ) )
+	{
+		return self [[ level.bot_builtins[ "botcanseeplayer" ] ]]( player, myEye, head, ankleLe, ankleRi, useAnkles );
+	}
+	
+	return false;
 }
 
 /*
@@ -1449,6 +1556,8 @@ load_waypoints()
 	
 	for ( i = level.waypoints.size - 1; i >= 0; i-- )
 	{
+		level.waypoints[ i ].index = i;
+
 		if ( !isdefined( level.waypoints[ i ].children ) || !isdefined( level.waypoints[ i ].children.size ) )
 		{
 			level.waypoints[ i ].children = [];
@@ -1465,6 +1574,11 @@ load_waypoints()
 		}
 		
 		level.waypoints[ i ].childcount = undefined;
+	}
+
+	if ( level.waypoints.size )
+	{
+		level.waypoint_kd_tree = WaypointsToKDTree();
 	}
 }
 
@@ -2593,19 +2707,21 @@ RemoveWaypointUsage( wp, team )
 */
 getNearestWaypointWithSight( pos )
 {
+	perf_start = gettime();
 	candidate = undefined;
 	dist = 2147483647;
 	
 	for ( i = level.waypoints.size - 1; i >= 0; i-- )
 	{
-		if ( !bullettracepassed( pos + ( 0, 0, 15 ), level.waypoints[ i ].origin + ( 0, 0, 15 ), false, undefined ) )
+		curdis = distancesquared( level.waypoints[ i ].origin, pos );
+		
+		if ( curdis > dist )
 		{
 			continue;
 		}
 		
-		curdis = distancesquared( level.waypoints[ i ].origin, pos );
-		
-		if ( curdis > dist )
+		bot_perf_count( "wp_los_trace" );
+		if ( !bullettracepassed( pos + ( 0, 0, 15 ), level.waypoints[ i ].origin + ( 0, 0, 15 ), false, undefined ) )
 		{
 			continue;
 		}
@@ -2614,6 +2730,7 @@ getNearestWaypointWithSight( pos )
 		candidate = i;
 	}
 	
+	bot_perf_end( "nearest_wp_sight", perf_start );
 	return candidate;
 }
 
@@ -2622,6 +2739,19 @@ getNearestWaypointWithSight( pos )
 */
 getNearestWaypoint( pos )
 {
+	perf_start = gettime();
+	
+	if ( isdefined( level.waypoint_kd_tree ) )
+	{
+		nearest = level.waypoint_kd_tree KDTreeNearest( pos );
+
+		if ( isdefined( nearest ) && isdefined( nearest.index ) )
+		{
+			bot_perf_end( "nearest_wp", perf_start );
+			return nearest.index;
+		}
+	}
+
 	candidate = undefined;
 	dist = 2147483647;
 	
@@ -2638,6 +2768,7 @@ getNearestWaypoint( pos )
 		candidate = i;
 	}
 	
+	bot_perf_end( "nearest_wp", perf_start );
 	return candidate;
 }
 
@@ -2662,6 +2793,7 @@ AStarSearch( start, goal, team, greedy_path )
 	
 	_startwp = undefined;
 	
+	bot_perf_count( "astar_los_trace" );
 	if ( !bullettracepassed( start + ( 0, 0, 15 ), level.waypoints[ startWp ].origin + ( 0, 0, 15 ), false, undefined ) )
 	{
 		_startwp = getNearestWaypointWithSight( start );
@@ -2682,6 +2814,7 @@ AStarSearch( start, goal, team, greedy_path )
 	
 	_goalwp = undefined;
 	
+	bot_perf_count( "astar_los_trace" );
 	if ( !bullettracepassed( goal + ( 0, 0, 15 ), level.waypoints[ goalWp ].origin + ( 0, 0, 15 ), false, undefined ) )
 	{
 		_goalwp = getNearestWaypointWithSight( goal );

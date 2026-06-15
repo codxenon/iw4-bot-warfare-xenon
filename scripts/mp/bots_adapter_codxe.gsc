@@ -13,6 +13,7 @@ init()
 	level.bot_builtins[ "botmeleeparams" ] = ::do_botmeleeparams;
 	level.bot_builtins[ "botremoteangles" ] = ::do_botremoteangles;
 	level.bot_builtins[ "botangles" ] = ::do_botangles;
+	level.bot_builtins[ "botcanseeplayer" ] = ::do_botcanseeplayer;
 }
 
 do_printconsole( s )
@@ -82,4 +83,9 @@ do_botremoteangles( pitch, yaw )
 do_botangles( angles )
 {
 	self botangles( angles[ 0 ], angles[ 1 ], angles[ 2 ] );
+}
+
+do_botcanseeplayer( player, myEye, head, ankleLe, ankleRi, useAnkles )
+{
+	return self botcanseeplayer( player, myEye, head, ankleLe, ankleRi, useAnkles );
 }
