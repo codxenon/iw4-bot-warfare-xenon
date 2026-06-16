@@ -4553,11 +4553,11 @@ bot_crate_think_loop( data )
 	self BotFreezeControls( true );
 	self bot_wait_stop_move();
 	
-	waitTime = 3.25;
+	waitTime = 3.75;
 	
 	if ( !isdefined( crate.owner ) || crate.owner == self )
 	{
-		waitTime = 0.75;
+		waitTime = 1.25;
 	}
 	
 	self thread BotPressUse( waitTime );
@@ -6357,7 +6357,7 @@ bot_sab_loop()
 		self SetScriptGoal( self.origin, 64 );
 		self bot_wait_stop_move();
 		
-		waitTime = ( site.usetime / 1000 ) + 2.5;
+		waitTime = ( site.usetime / 1000 ) + 3;
 		self thread BotPressUse( waitTime );
 		wait waitTime;
 		
@@ -6507,7 +6507,7 @@ bot_sab_loop()
 		self SetScriptGoal( self.origin, 64 );
 		self bot_wait_stop_move();
 		
-		waitTime = ( site.usetime / 1000 ) + 2.5;
+		waitTime = ( site.usetime / 1000 ) + 3;
 		self thread BotPressUse( waitTime );
 		wait waitTime;
 		
@@ -6771,7 +6771,7 @@ bot_sd_defenders_loop( data )
 	self SetScriptGoal( self.origin, 64 );
 	self bot_wait_stop_move();
 	
-	waitTime = ( defuse.usetime / 1000 ) + 2.5;
+	waitTime = ( defuse.usetime / 1000 ) + 3;
 	self thread BotPressUse( waitTime );
 	wait waitTime;
 	
@@ -7050,7 +7050,7 @@ bot_sd_attackers_loop( data )
 	self SetScriptGoal( self.origin, 64 );
 	self bot_wait_stop_move();
 	
-	waitTime = ( plant.usetime / 1000 ) + 2.5;
+	waitTime = ( plant.usetime / 1000 ) + 3;
 	self thread BotPressUse( waitTime );
 	wait waitTime;
 	
@@ -7661,7 +7661,7 @@ bot_dem_attackers_loop()
 	self SetScriptGoal( self.origin, 64 );
 	self bot_wait_stop_move();
 	
-	waitTime = ( plant.usetime / 1000 ) + 2.5;
+	waitTime = ( plant.usetime / 1000 ) + 3;
 	self thread BotPressUse( waitTime );
 	wait waitTime;
 	
@@ -7950,7 +7950,7 @@ bot_dem_defenders_loop()
 	self SetScriptGoal( self.origin, 64 );
 	self bot_wait_stop_move();
 	
-	waitTime = ( defuse.usetime / 1000 ) + 2.5;
+	waitTime = ( defuse.usetime / 1000 ) + 3;
 	self thread BotPressUse( waitTime );
 	wait waitTime;
 	
@@ -8119,7 +8119,7 @@ bot_think_revive_loop()
 	self BotFreezeControls( true );
 	self bot_wait_stop_move();
 	
-	waitTime = 3.25;
+	waitTime = 3.75;
 	self thread BotPressUse( waitTime );
 	wait waitTime;
 	
