@@ -23,6 +23,7 @@ CodeCallback_StartGameType()
 		level thread scripts\mp\bots_menu::init();
 		level thread scripts\mp\bots_wp_editor::init();
 		level thread scripts\mp\bots::init();
+		level thread scripts\mp\bots_mapvote::init(); // mapvoting
 	}
 }
 
