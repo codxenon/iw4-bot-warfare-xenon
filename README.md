@@ -104,8 +104,8 @@ You can find the ModDB release post [here](https://www.moddb.com/mods/bot-warfar
 | bots_skill_max                   | The maximum difficulty level for the bots.                                                     | 7          |
 | bots_loadout_reasonable          | If the bots should filter bad performing create-a-class selections.                            | 0          |
 | bots_loadout_allow_op            | If the bots should be able to use overpowered and annoying create-a-class selections.          | 1          |
-| bots_loadout_rank                | What rank to set the bots.<ul><li>`-1` - Average of all players in the match.</li><li>`0` - All random.</li><li>`1` or higher - Sets the bots' rank to this.</li></ul> | -1 |
-| bots_loadout_prestige            | What prestige to set the bots.<ul><li>`-1` - Same as host player in the match.</li><li>`-2` - All random.</li><li>`0` or higher - Sets the bots' prestige to this.</li></ul> | -1 |
+| bots_loadout_rank                | What rank to set the bots.<ul><li>`-1` - Average of all players in the match.</li><li>`0` - All random.</li><li>`1` or higher - Sets the bots' rank to this.</li></ul> | 0 |
+| bots_loadout_prestige            | What prestige to set the bots.<ul><li>`-1` - Same as host player in the match.</li><li>`-2` - All random.</li><li>`0` or higher - Sets the bots' prestige to this.</li></ul> | -2 |
 | bots_play_move                   | If the bots can move.                                                                          | 1          |
 | bots_play_knife                  | If the bots can knife.                                                                         | 1          |
 | bots_play_fire                   | If the bots can fire.                                                                          | 1          |

@@ -152,12 +152,12 @@ init()
 	
 	if ( getdvar( "bots_loadout_rank" ) == "" ) // what rank the bots should be around, -1 is around the players, 0 is all random
 	{
-		setdvar( "bots_loadout_rank", -1 );
+		setdvar( "bots_loadout_rank", 0 );
 	}
 	
 	if ( getdvar( "bots_loadout_prestige" ) == "" ) // what pretige the bots will be, -1 is the players, -2 is random
 	{
-		setdvar( "bots_loadout_prestige", -1 );
+		setdvar( "bots_loadout_prestige", -2 );
 	}
 	
 	if ( getdvar( "bots_play_move" ) == "" ) // bots move
@@ -219,6 +219,12 @@ init()
 	{
 		setdvar( "bots_play_aim", true );
 	}
+
+	level.bots_target_update_interval = 0.2;
+	level.bots_target_update_stagger = 0.05;
+	level.bots_walk_update_stagger = 0.025;
+	bot_perf_init();
+	// thread bot_perf_printer();
 	
 	if ( !isdefined( game[ "botWarfare" ] ) )
 	{
