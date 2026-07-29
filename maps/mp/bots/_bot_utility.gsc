@@ -1693,6 +1693,7 @@ getMapName( mapname )
 			return "Airport";
 			
 		case "co_hunted":
+		case "mp_so_co_hunted":
 			return "Hunted";
 			
 		case "invasion":
@@ -1711,6 +1712,7 @@ getMapName( mapname )
 			return "Gulag";
 			
 		case "so_ghillies":
+		case "mp_so_ghillies":
 			return "Pripyat";
 			
 		case "ending":
@@ -1813,9 +1815,11 @@ getGoodMapAmount()
 		case "invasion":
 		case "mp_bog_sh":
 		case "co_hunted":
+		case "mp_so_co_hunted":
 		case "contingency":
 		case "gulag":
 		case "so_ghillies":
+		case "mp_so_ghillies":
 		case "ending":
 		case "af_chase":
 		case "af_caves":
