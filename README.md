@@ -83,6 +83,7 @@ You can find the ModDB release post [here](https://www.moddb.com/mods/bot-warfar
 | bots_main_GUIDs                  | A comma separated list of GUIDs of players who will be given host.                          |               |
 | bots_main_waitForHostTime        | How many seconds to wait for the host player to connect before adding bots to the match.    | 10            |
 | bots_main_menu                   | Enable the in-game menu for hosts.                                                          | 1             |
+| bots_main_awareness_quality      | Bot awareness quality.<ul><li>`0` - Highest (`50ms`).</li><li>`1` - High (`100ms`).</li><li>`2` - Medium (`200ms`).</li><li>`3` - Low (`400ms`).</li><li>`4` - Lowest (`800ms`).</li></ul> Lower quality reduces system load. | 2 |
 | bots_main_debug                  | Enable the in-game waypoint editor at start of the game, or enable bot event prints. <ul><li>`0` - disable</li><li>`1` - for just debug events</li><li>`2` - for every event</li><ul> | 0 |
 | bots_main_kickBotsAtEnd          | Kick the bots at the end of a match.                                                        | 0             |
 | bots_manage_add                  | Amount of bots to add to the game, once bots are added, resets back to `0`.                 | 0             |
