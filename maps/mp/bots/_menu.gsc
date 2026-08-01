@@ -1092,6 +1092,32 @@ addOptions()
 	}
 	
 	self AddMenu( "set1", 12, "Bots can ads: " + _temp, ::bot_func, "ads", _tempDvar );
+
+	_tempDvar = getdvarint( "bots_main_awareness_quality" );
+	_temp = awarenessQualityText( _tempDvar );
+
+	self AddMenu( "set1", 13, "Bot awareness quality: " + _temp, ::bot_func, "awareness", _tempDvar );
+}
+
+awarenessQualityText( quality )
+{
+	switch ( quality )
+	{
+		case 0:
+			return "Highest (50ms)";
+
+		case 1:
+			return "High (100ms)";
+
+		case 3:
+			return "Low (400ms)";
+
+		case 4:
+			return "Lowest (800ms)";
+
+		default:
+			return "Medium (200ms)";
+	}
 }
 
 bot_func( a, b )
@@ -1161,6 +1187,20 @@ bot_func( a, b )
 		case "ads":
 			setdvar( "bots_play_ads", !b );
 			self iprintln( "Bots ads: " + !b );
+			break;
+
+		case "awareness":
+			quality = b + 1;
+
+			if ( quality > 4 )
+			{
+				quality = 0;
+			}
+
+			setdvar( "bots_main_awareness_quality", quality );
+			maps\mp\bots\_bot::updateTargetUpdateInterval();
+			self iprintln( "Bot awareness quality: " + awarenessQualityText( quality ) );
+
 			break;
 	}
 }

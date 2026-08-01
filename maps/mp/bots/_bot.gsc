@@ -15,7 +15,7 @@
 */
 init()
 {
-	level.bw_version = "2.3.1-xenon";
+	level.bw_version = "2.4.0-xenon";
 	
 	if ( getdvar( "bots_main" ) == "" )
 	{
@@ -49,6 +49,13 @@ init()
 	{
 		setdvar( "bots_main_waitForHostTime", 10.0 ); // how long to wait to wait for the host player
 	}
+
+	if ( getdvar( "bots_main_awareness_quality" ) == "" )
+	{
+		setdvar( "bots_main_awareness_quality", 2 );
+	}
+
+	updateTargetUpdateInterval();
 	
 	if ( getdvar( "bots_main_kickBotsAtEnd" ) == "" )
 	{
@@ -291,6 +298,34 @@ init()
 	level thread handleBots();
 	
 	array_thread( getentarray( "misc_turret", "classname" ), ::turret_monitoruse_watcher );
+}
+
+updateTargetUpdateInterval()
+{
+	quality = getdvarint( "bots_main_awareness_quality" );
+	level.bots_target_update_interval = 0.2;
+	level.bots_target_update_interval_ms = 200;
+
+	if ( quality == 0 )
+	{
+		level.bots_target_update_interval = 0.05;
+		level.bots_target_update_interval_ms = 50;
+	}
+	else if ( quality == 1 )
+	{
+		level.bots_target_update_interval = 0.1;
+		level.bots_target_update_interval_ms = 100;
+	}
+	else if ( quality == 3 )
+	{
+		level.bots_target_update_interval = 0.4;
+		level.bots_target_update_interval_ms = 400;
+	}
+	else if ( quality == 4 )
+	{
+		level.bots_target_update_interval = 0.8;
+		level.bots_target_update_interval_ms = 800;
+	}
 }
 
 /*
